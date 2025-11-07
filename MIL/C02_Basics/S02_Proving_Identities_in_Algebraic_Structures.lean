@@ -53,13 +53,33 @@ theorem neg_add_cancel_left (a b : R) : -a + (a + b) = b := by
 
 -- Prove these:
 theorem add_neg_cancel_right (a b : R) : a + b + -b = a := by
-  sorry
+  rw [add_comm (a + b)]
+  rw [add_comm a]
+  rw [neg_add_cancel_left]
 
 theorem add_left_cancel {a b c : R} (h : a + b = a + c) : b = c := by
-  sorry
+  rw [← add_zero b]
+  rw [← neg_add_cancel a]
+  rw [← add_assoc]
+  rw [add_comm b]
+  rw [add_assoc]
+  rw [add_comm b]
+  rw [h]
+  rw [← add_assoc]
+  rw [neg_add_cancel]
+  rw [zero_add]
 
 theorem add_right_cancel {a b c : R} (h : a + b = c + b) : a = c := by
-  sorry
+  rw [← add_zero a]
+  rw [← neg_add_cancel b]
+  rw [add_comm (-b)]
+  rw [← add_assoc]
+  rw [h]
+  rw [add_comm c]
+  rw [add_comm (b+c)]
+  rw [← add_assoc]
+  rw [neg_add_cancel]
+  rw [zero_add]
 
 theorem mul_zero (a : R) : a * 0 = 0 := by
   have h : a * 0 + a * 0 = a * 0 + 0 := by
@@ -67,20 +87,43 @@ theorem mul_zero (a : R) : a * 0 = 0 := by
   rw [add_left_cancel h]
 
 theorem zero_mul (a : R) : 0 * a = 0 := by
-  sorry
+  have h : 0 * a + 0 * a = 0 * a + 0 := by
+    rw [← add_mul, add_zero, add_zero]
+  rw [add_left_cancel h]
 
 theorem neg_eq_of_add_eq_zero {a b : R} (h : a + b = 0) : -a = b := by
-  sorry
+  rw [← add_zero b]
+  rw [← neg_add_cancel a]
+  rw [← add_assoc]
+  rw [add_comm b]
+  rw [add_comm (-a)]
+  rw [add_comm (b + -a)]
+  rw [← add_assoc]
+  rw [h]
+  rw [add_comm]
+  rw [add_zero]
 
 theorem eq_neg_of_add_eq_zero {a b : R} (h : a + b = 0) : a = -b := by
-  sorry
+  rw [← add_zero a]
+  rw [← neg_add_cancel b]
+  rw [add_comm (-b)]
+  rw [← add_assoc]
+  rw [h]
+  rw [add_comm]
+  rw [add_zero]
 
 theorem neg_zero : (-0 : R) = 0 := by
   apply neg_eq_of_add_eq_zero
   rw [add_zero]
 
 theorem neg_neg (a : R) : - -a = a := by
-  sorry
+  rw [← zero_add (- -a)]
+  rw [← neg_add_cancel a]
+  rw [← add_comm (- -a)]
+  rw [← add_assoc]
+  rw [neg_add_cancel]
+  rw [add_comm]
+  rw [add_zero]
 
 end MyRing
 
@@ -103,13 +146,17 @@ namespace MyRing
 variable {R : Type*} [Ring R]
 
 theorem self_sub (a : R) : a - a = 0 := by
-  sorry
+  rw [← neg_add_cancel a]
+  rw [add_comm]
+  rw [sub_eq_add_neg]
 
 theorem one_add_one_eq_two : 1 + 1 = (2 : R) := by
   norm_num
 
 theorem two_mul (a : R) : 2 * a = a + a := by
-  sorry
+  rw [← one_add_one_eq_two]
+  rw [add_mul]
+  rw [one_mul]
 
 end MyRing
 
@@ -143,4 +190,3 @@ theorem mul_inv_rev (a b : G) : (a * b)⁻¹ = b⁻¹ * a⁻¹ := by
 end MyGroup
 
 end
-
