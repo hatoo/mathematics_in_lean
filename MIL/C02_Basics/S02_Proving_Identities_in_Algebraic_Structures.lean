@@ -178,6 +178,8 @@ variable {G : Type*} [Group G]
 
 namespace MyGroup
 
+
+
 theorem mul_inv_cancel (a : G) : a * a⁻¹ = 1 := by
   sorry
 
