@@ -1,6 +1,7 @@
 import Mathlib.Algebra.Ring.Defs
 import Mathlib.Data.Real.Basic
 import MIL.Common
+import Init.Data.Int.DivMod
 
 section
 variable (R : Type*) [Ring R]
@@ -176,9 +177,22 @@ variable {G : Type*} [Group G]
 #check (one_mul : ∀ a : G, 1 * a = a)
 #check (inv_mul_cancel : ∀ a : G, a⁻¹ * a = 1)
 
+theorem six_pow_mod_10 (a : Nat) : (6 ^ (a + 1)) % 10 = 6 := by
+  induction a with
+  | zero => simp
+  | succ a ih =>
+    rw [pow_add]
+    rw [mul_comm]
+    rw [pow_one]
+    have h : 6 * (6 ^ (a + 1)) % 10 = (6 % 10) * (6 ^ (a + 1) % 10) % 10 := by
+      ring
+      rw [Nat.mod_mul_mod]
+      ring
+    rw [h]
+    rw [ih]
+
+
 namespace MyGroup
-
-
 
 theorem mul_inv_cancel (a : G) : a * a⁻¹ = 1 := by
   sorry
