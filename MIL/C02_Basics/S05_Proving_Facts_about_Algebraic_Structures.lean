@@ -121,11 +121,95 @@ variable {α : Type*} [Lattice α]
 variable (a b c : α)
 
 example (h : ∀ x y z : α, x ⊓ (y ⊔ z) = x ⊓ y ⊔ x ⊓ z) : a ⊔ b ⊓ c = (a ⊔ b) ⊓ (a ⊔ c) := by
-  sorry
+  apply le_antisymm
+  · apply le_inf
+    · apply sup_le
+      · exact le_sup_left
+      · calc
+          b ⊓ c ≤ b := inf_le_left
+          _ ≤ _ := le_sup_right
+    · apply sup_le
+      · exact le_sup_left
+      · calc
+          b ⊓ c ≤ c := inf_le_right
+          _ ≤ _ := le_sup_right
+  · rw [h]
+    · apply sup_le
+      have : (a ⊔ b) ⊓ a = a ⊓ (a ⊔ b) := by
+        apply le_antisymm
+        repeat
+          apply le_inf
+          apply inf_le_right
+          apply inf_le_left
+      · rw [this]
+        rw [absorb1]
+        exact le_sup_left
+      · have : (a ⊔ b) ⊓ c = c ⊓ (a ⊔ b) := by
+          apply le_antisymm
+          · apply le_inf
+            exact inf_le_right
+            exact inf_le_left
+          · apply le_inf
+            exact inf_le_right
+            exact inf_le_left
+        rw [this]
+        rw [h]
+        apply sup_le
+        · calc
+          c ⊓ a ≤ a := inf_le_right
+          a ≤ a ⊔ b ⊓ c := le_sup_left
+        · have : c ⊓ b = b ⊓ c := by
+            apply le_antisymm
+            repeat
+              apply le_inf
+              apply inf_le_right
+              apply inf_le_left
+          rw [this]
+          exact le_sup_right
 
 example (h : ∀ x y z : α, x ⊔ y ⊓ z = (x ⊔ y) ⊓ (x ⊔ z)) : a ⊓ (b ⊔ c) = a ⊓ b ⊔ a ⊓ c := by
-  sorry
-
+  apply le_antisymm
+  · rw [h]
+    · apply le_inf
+      have : a ⊓ b ⊔ a = a ⊔ a ⊓ b := by apply sup_comm
+      rw [this]
+      rw [absorb2]
+      exact inf_le_left
+      have : a ⊓ b ⊔ c = c ⊔ (a ⊓ b) := by
+        apply le_antisymm
+        repeat
+          apply sup_le
+          apply le_sup_right
+          apply le_sup_left
+      rw [this]
+      rw [h]
+      apply le_inf
+      calc
+        _ ≤ a := inf_le_left
+        _ ≤ _ := le_sup_right
+      have : b ⊔ c = c ⊔ b := by apply sup_comm
+      rw [this]
+      exact inf_le_right
+  · rw [h]
+    apply le_inf
+    have : a ⊓ b ⊔ a = a ⊔ a ⊓ b := by apply sup_comm
+    · rw [this]
+      rw [absorb2]
+      exact inf_le_left
+    · have : a ⊓ b ⊔ a = a := by
+        apply le_antisymm
+        apply sup_le
+        exact inf_le_left
+        rfl
+        exact le_sup_right
+      rw [this]
+      have : a ⊓ b ⊔ c = c ⊔ a ⊓ b := by apply sup_comm
+      rw [this]
+      rw [h]
+      have : c ⊔ b = b ⊔ c := by apply sup_comm
+      rw [this]
+      rw [← inf_assoc]
+      exact inf_le_right
 end
 
 section
