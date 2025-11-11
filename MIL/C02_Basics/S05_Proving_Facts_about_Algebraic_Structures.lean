@@ -217,14 +217,28 @@ variable (a b c : R)
 #check (mul_nonneg : 0 ≤ a → 0 ≤ b → 0 ≤ a * b)
 
 example (h : a ≤ b) : 0 ≤ b - a := by
-  sorry
+  rw [← show a - a = 0 from by apply sub_self]
+  apply sub_le_sub_right
+  exact h
 
 example (h: 0 ≤ b - a) : a ≤ b := by
-  sorry
+  rw [← show a - a = 0 from by apply sub_self] at h
+  rw [show a = a - a + a from by simp]
+  rw [show b = b - a + a from by simp]
+  apply add_le_add_right
+  exact h
 
 example (h : a ≤ b) (h' : 0 ≤ c) : a * c ≤ b * c := by
-  sorry
-
+  rw [← sub_add_cancel (b * c) (a * c)]
+  nth_rw 1 [← add_zero (a * c)]
+  rw [← add_comm 0]
+  apply add_le_add_right
+  rw [← mul_sub_right_distrib]
+  have : 0 ≤ b - a := by
+    rw [← sub_self a]
+    apply sub_le_sub_right
+    exact h
+  exact mul_nonneg this h'
 end
 
 section
@@ -236,6 +250,13 @@ variable (x y z : X)
 #check (dist_triangle x y z : dist x z ≤ dist x y + dist y z)
 
 example (x y : X) : 0 ≤ dist x y := by
-  sorry
-
+  have : 0 ≤ 2 * dist x y := by
+    rw [two_mul]
+    nth_rw 2 [dist_comm x y]
+    rw [← dist_self x]
+    apply dist_triangle x y x
+  rw [← mul_zero 2] at this
+  rw [mul_le_mul_left] at this
+  apply this
+  linarith
 end
