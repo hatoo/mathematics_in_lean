@@ -175,12 +175,7 @@ example (h : ∀ x y z : α, x ⊔ y ⊓ z = (x ⊔ y) ⊓ (x ⊔ z)) : a ⊓ (b
       rw [this]
       rw [absorb2]
       exact inf_le_left
-      have : a ⊓ b ⊔ c = c ⊔ (a ⊓ b) := by
-        apply le_antisymm
-        repeat
-          apply sup_le
-          apply le_sup_right
-          apply le_sup_left
+      have : a ⊓ b ⊔ c = c ⊔ (a ⊓ b) := by apply sup_comm
       rw [this]
       rw [h]
       apply le_inf
