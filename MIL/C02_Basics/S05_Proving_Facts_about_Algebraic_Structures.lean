@@ -36,23 +36,74 @@ variable (x y z : α)
 #check (sup_le : x ≤ z → y ≤ z → x ⊔ y ≤ z)
 
 example : x ⊓ y = y ⊓ x := by
-  sorry
+  apply le_antisymm
+  repeat
+    apply le_inf
+    apply inf_le_right
+    apply inf_le_left
 
 example : x ⊓ y ⊓ z = x ⊓ (y ⊓ z) := by
-  sorry
+  apply le_antisymm
+  . apply le_inf
+    · calc
+        x ⊓ y ⊓ z ≤ x ⊓ y := inf_le_left
+        x ⊓ y ≤ x := inf_le_left
+    · apply le_inf
+      . calc
+        x ⊓ y ⊓ z ≤ x ⊓ y := inf_le_left
+        x ⊓ y ≤ y := inf_le_right
+      · apply inf_le_right
+  · apply le_inf
+    · apply le_inf
+      . apply inf_le_left
+      · calc
+          _ ≤ y ⊓ z := inf_le_right
+          y ⊓ z ≤ y := inf_le_left
+    · calc
+      x ⊓ (y ⊓ z) ≤ y ⊓ z := inf_le_right
+      y ⊓ z ≤ z := inf_le_right
 
 example : x ⊔ y = y ⊔ x := by
-  sorry
+  apply le_antisymm
+  repeat
+    apply sup_le
+    apply le_sup_right
+    apply le_sup_left
 
 example : x ⊔ y ⊔ z = x ⊔ (y ⊔ z) := by
-  sorry
+  apply le_antisymm
+  apply sup_le
+  apply sup_le
+  · apply le_sup_left
+  · calc
+    y ≤ y ⊔ z := le_sup_left
+    y ⊔ z ≤ x ⊔ (y ⊔ z) := le_sup_right
+  · calc
+    z ≤ y ⊔ z := le_sup_right
+    _ ≤ _ := le_sup_right
+  · apply sup_le
+    calc
+      x ≤ x ⊔ y := le_sup_left
+      _ ≤ _ := le_sup_left
+    · apply sup_le
+      calc
+        y ≤ x ⊔ y := le_sup_right
+        _ ≤ _ := le_sup_left
+      exact le_sup_right
 
 theorem absorb1 : x ⊓ (x ⊔ y) = x := by
-  sorry
+  apply le_antisymm
+  · apply inf_le_left
+  · apply le_inf
+    · rfl
+    · exact le_sup_left
 
 theorem absorb2 : x ⊔ x ⊓ y = x := by
-  sorry
-
+  apply le_antisymm
+  · apply sup_le
+    · rfl
+    · exact inf_le_left
+  · exact le_sup_left
 end
 
 section
@@ -109,4 +160,3 @@ example (x y : X) : 0 ≤ dist x y := by
   sorry
 
 end
-
