@@ -12,13 +12,11 @@ variable (a b c d : ℝ)
 
 example : min a b = min b a := by
   apply le_antisymm
-  · show min a b ≤ min b a
-    apply le_min
-    · apply min_le_right
+  · apply le_min
+    apply min_le_right
     apply min_le_left
-  · show min b a ≤ min a b
-    apply le_min
-    · apply min_le_right
+  · apply le_min
+    apply min_le_right
     apply min_le_left
 
 example : min a b = min b a := by
@@ -39,17 +37,61 @@ example : min a b = min b a := by
     apply min_le_left
 
 example : max a b = max b a := by
-  sorry
+  apply le_antisymm
+  repeat
+    apply max_le
+    apply le_max_right
+    apply le_max_left
+
 example : min (min a b) c = min a (min b c) := by
-  sorry
+  apply le_antisymm
+  · apply le_min
+    · apply le_trans
+      apply min_le_left
+      apply min_le_left
+    · apply le_min
+      · apply le_trans
+        apply min_le_left
+        apply min_le_right
+      · apply min_le_right
+  · apply le_min
+    · apply le_min
+      · apply min_le_left
+      · apply le_trans
+        apply min_le_right
+        apply min_le_left
+    · apply le_trans
+      apply min_le_right
+      apply min_le_right
+
 theorem aux : min a b + c ≤ min (a + c) (b + c) := by
-  sorry
+  apply le_min
+  · apply add_le_add_right
+    apply min_le_left
+  · apply add_le_add_right
+    apply min_le_right
+
 example : min a b + c = min (a + c) (b + c) := by
-  sorry
+  apply le_antisymm
+  · apply aux
+  have h : min (a + c) (b + c) = min (a + c) (b + c) - c + c := by rw [sub_add_cancel]
+  rw [h]
+  apply add_le_add_right
+  apply le_trans
+  apply aux
+  ring
+  rfl
+
 #check (abs_add : ∀ a b : ℝ, |a + b| ≤ |a| + |b|)
 
-example : |a| - |b| ≤ |a - b| :=
-  sorry
+example : |a| - |b| ≤ |a - b| := by
+  have : |a - b| = |a - b| + |b| - |b| := by ring
+  rw [this]
+  apply add_le_add_right
+  have : |a| = |a - b + b| := by ring
+  rw [this]
+  apply abs_add
+
 end
 
 section
@@ -80,5 +122,3 @@ variable (m n : ℕ)
 example : Nat.gcd m n = Nat.gcd n m := by
   sorry
 end
-
-
