@@ -82,16 +82,28 @@ section
 variable {α : Type*} (P : α → Prop) (Q : Prop)
 
 example (h : ¬∃ x, P x) : ∀ x, ¬P x := by
-  sorry
+  intro x px
+  apply h
+  use x
 
 example (h : ∀ x, ¬P x) : ¬∃ x, P x := by
-  sorry
+  intro px
+  rcases px with ⟨x, px⟩
+  exact h x px
 
 example (h : ¬∀ x, P x) : ∃ x, ¬P x := by
-  sorry
+  by_contra h'
+  apply h
+  intro x
+  show P x
+  by_contra h''
+  apply h'
+  use x
 
 example (h : ∃ x, ¬P x) : ¬∀ x, P x := by
-  sorry
+  intro allpx
+  rcases h with ⟨y, npy⟩
+  exact npy (allpx y)
 
 example (h : ¬∀ x, P x) : ∃ x, ¬P x := by
   by_contra h'
@@ -102,18 +114,31 @@ example (h : ¬∀ x, P x) : ∃ x, ¬P x := by
   exact h' ⟨x, h''⟩
 
 example (h : ¬¬Q) : Q := by
-  sorry
+  by_contra h'
+  apply h
+  by_contra
+  apply h
+  exact h'
 
 example (h : Q) : ¬¬Q := by
-  sorry
-
+  by_contra h'
+  apply h'
+  exact h
 end
 
 section
 variable (f : ℝ → ℝ)
 
 example (h : ¬FnHasUb f) : ∀ a, ∃ x, f x > a := by
-  sorry
+  intro a
+  by_contra h'
+  apply h
+  use a
+  intro x
+  apply le_of_not_gt
+  intro h''
+  apply h'
+  use x
 
 example (h : ¬∀ a, ∃ x, f x > a) : FnHasUb f := by
   push_neg at h
@@ -125,7 +150,9 @@ example (h : ¬FnHasUb f) : ∀ a, ∃ x, f x > a := by
   exact h
 
 example (h : ¬Monotone f) : ∃ x y, x ≤ y ∧ f y < f x := by
-  sorry
+  dsimp [Monotone] at h
+  push_neg at h
+  exact h
 
 example (h : ¬FnHasUb f) : ∀ a, ∃ x, f x > a := by
   contrapose! h
