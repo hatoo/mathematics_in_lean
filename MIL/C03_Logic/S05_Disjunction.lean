@@ -58,19 +58,117 @@ example : x < |y| → x < y ∨ x < -y := by
 namespace MyAbs
 
 theorem le_abs_self (x : ℝ) : x ≤ |x| := by
-  sorry
+  cases le_or_gt x 0
+  case inl h =>
+    apply le_trans
+    apply h
+    apply abs_nonneg
+  case inr h =>
+    rw [abs_of_pos h]
 
 theorem neg_le_abs_self (x : ℝ) : -x ≤ |x| := by
-  sorry
+  cases le_or_gt (-x) 0
+  case inl h =>
+    apply le_trans
+    apply h
+    apply abs_nonneg
+  case inr h =>
+    rw [← abs_neg]
+    rw [abs_of_pos h]
 
 theorem abs_add (x y : ℝ) : |x + y| ≤ |x| + |y| := by
-  sorry
-
+  cases le_or_gt x 0
+  case inl h =>
+    cases le_or_gt y 0
+    case inl g =>
+      rw [abs_of_nonpos h]
+      rw [abs_of_nonpos g]
+      have : x + y ≤ 0 := by
+        apply add_nonpos
+        apply h
+        apply g
+      rw [abs_of_nonpos this]
+      linarith
+    case inr g =>
+      rw [abs_of_nonpos h]
+      rw [abs_of_pos g]
+      cases le_or_gt (x + y) 0
+      case inl l =>
+        rw [abs_of_nonpos l]
+        linarith
+      case inr l =>
+        rw [abs_of_pos l]
+        linarith
+  case inr h =>
+    cases le_or_gt y 0
+    case inl g =>
+      rw [abs_of_pos h]
+      rw [abs_of_nonpos g]
+      cases le_or_gt (x + y) 0
+      case inl l =>
+        rw [abs_of_nonpos l]
+        linarith
+      case inr l =>
+        rw [abs_of_pos l]
+        linarith
+    case inr g =>
+      rw [abs_of_pos h]
+      rw [abs_of_pos g]
+      have : x + y > 0 := by
+        rw [gt_iff_lt]
+        linarith
+      rw [abs_of_pos this]
 theorem lt_abs : x < |y| ↔ x < y ∨ x < -y := by
-  sorry
+  constructor
+  · cases le_or_gt y 0
+    case inl h =>
+      rw [abs_of_nonpos h]
+      intro g
+      right
+      exact g
+    case inr h =>
+      rw [abs_of_pos h]
+      intro g
+      left
+      exact g
+  · cases le_or_gt y 0
+    case inl h =>
+      rw [abs_of_nonpos h]
+      intro g
+      cases g
+      case inl g =>
+        linarith
+      case inr g =>
+        linarith
+    case inr h =>
+      intro g
+      rw [abs_of_pos h]
+      cases g
+      case inl g =>
+        linarith
+      case inr g =>
+        linarith
 
 theorem abs_lt : |x| < y ↔ -y < x ∧ x < y := by
-  sorry
+  cases le_or_gt x 0
+  case inl h =>
+    rw [abs_of_nonpos h]
+    constructor
+    · intro g
+      have t0 : -y < x := by linarith
+      have t1 : x < y := by linarith
+      exact ⟨t0, t1⟩
+    · rintro ⟨g0, g1⟩
+      linarith
+  case inr h =>
+    rw [abs_of_pos h]
+    constructor
+    · intro g
+      have t0 : -y < x := by linarith
+      have t1 : x < y := by linarith
+      exact ⟨t0, t1⟩
+    · rintro ⟨g0, g1⟩
+      linarith
 
 end MyAbs
 
@@ -125,4 +223,3 @@ example (P : Prop) : ¬¬P → P := by
 
 example (P Q : Prop) : P → Q ↔ ¬P ∨ Q := by
   sorry
-

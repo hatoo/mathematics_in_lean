@@ -197,10 +197,21 @@ variable (a b c : α)
 
 example : ¬a < a := by
   rw [lt_iff_le_not_ge]
-  sorry
+  rintro ⟨h₀, h₁⟩
+  contradiction
 
 example : a < b → b < c → a < c := by
   simp only [lt_iff_le_not_ge]
-  sorry
-
+  rintro ⟨ab, nba⟩
+  rintro ⟨bc, ncb⟩
+  constructor
+  · apply le_trans
+    apply ab
+    apply bc
+  intro ca
+  have : c ≤ b := by
+    apply le_trans
+    apply ca
+    apply ab
+  contradiction
 end
