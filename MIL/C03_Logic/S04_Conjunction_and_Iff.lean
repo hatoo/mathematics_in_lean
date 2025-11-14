@@ -170,8 +170,25 @@ variable (a b : α)
 
 example : a < b ↔ a ≤ b ∧ a ≠ b := by
   rw [lt_iff_le_not_ge]
-  sorry
-
+  constructor
+  · intro h
+    constructor
+    · exact h.left
+    · intro ab
+      rcases h with ⟨h₀, h₁⟩
+      apply h₁
+      apply le_of_eq
+      rw [eq_comm]
+      exact ab
+  · intro h
+    rcases h with ⟨h₀, h₁⟩
+    constructor
+    · exact h₀
+    · intro ba
+      apply h₁
+      apply le_antisymm
+      exact h₀
+      exact ba
 end
 
 section
