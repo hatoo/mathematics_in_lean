@@ -35,7 +35,22 @@ theorem convergesTo_add {s t : ℕ → ℝ} {a b : ℝ}
   rcases cs (ε / 2) ε2pos with ⟨Ns, hs⟩
   rcases ct (ε / 2) ε2pos with ⟨Nt, ht⟩
   use max Ns Nt
-  sorry
+  intro n hn
+  calc
+    |s n + t n - (a + b)| = |s n - a + (t n - b)| := by
+      congr
+      ring
+    _ ≤ |s n - a| + |t n - b| := by
+      apply abs_add
+    |s n - a| + |t n - b| < ε := by
+      have hs : |s n - a| < ε / 2 := by
+        apply hs
+        apply (max_le_iff.mp hn).left
+      have ht : |t n - b| < ε / 2 := by
+        apply ht
+        apply (max_le_iff.mp hn).right
+      convert add_lt_add hs ht
+      ring
 
 theorem convergesTo_mul_const {s : ℕ → ℝ} {a : ℝ} (c : ℝ) (cs : ConvergesTo s a) :
     ConvergesTo (fun n ↦ c * s n) (c * a) := by
@@ -46,7 +61,40 @@ theorem convergesTo_mul_const {s : ℕ → ℝ} {a : ℝ} (c : ℝ) (cs : Conver
     rw [h]
     ring
   have acpos : 0 < |c| := abs_pos.mpr h
-  sorry
+  intro cε hcε
+  have : 0 < cε / |c| := by
+    apply mul_pos
+    apply hcε
+    simp
+    apply h
+  rcases cs (cε / |c|) this with ⟨N, hs⟩
+  use N
+  intro n hn
+  dsimp
+  calc
+    |c * s n - c * a| = |(s n - a) * c| := by
+      congr
+      ring
+    |(s n - a) * c| = |s n - a| * |c| := by
+      apply abs_mul
+    |s n - a| * |c| < cε := by
+      have : |s n - a| < cε / |c| := by
+        apply hs
+        apply hn
+      have t : 0 < |c|⁻¹ := by
+        simp
+        exact h
+      apply (mul_lt_mul_right t).mp
+      rw [mul_assoc]
+      nth_rw 2 [mul_comm]
+      rw [← div_eq_inv_mul]
+      rw [div_self]
+      simp
+      rw [mul_comm]
+      rw [← div_eq_inv_mul]
+      apply this
+      · apply ne_of_gt
+        apply acpos
 
 theorem exists_abs_le_of_convergesTo {s : ℕ → ℝ} {a : ℝ} (cs : ConvergesTo s a) :
     ∃ N b, ∀ n, N ≤ n → |s n| < b := by
@@ -100,4 +148,3 @@ def ConvergesTo' (s : α → ℝ) (a : ℝ) :=
   ∀ ε > 0, ∃ N, ∀ n ≥ N, |s n - a| < ε
 
 end
-
