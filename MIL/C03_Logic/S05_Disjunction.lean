@@ -189,24 +189,76 @@ example {m n k : ℕ} (h : m ∣ n ∨ m ∣ k) : m ∣ n * k := by
     apply dvd_mul_right
 
 example {z : ℝ} (h : ∃ x y, z = x ^ 2 + y ^ 2 ∨ z = x ^ 2 + y ^ 2 + 1) : z ≥ 0 := by
-  sorry
+  rcases h with ⟨x, y, h⟩
+  rcases h <;> linarith [pow_two_nonneg x, pow_two_nonneg y]
 
 example {x : ℝ} (h : x ^ 2 = 1) : x = 1 ∨ x = -1 := by
-  sorry
+  have : (x + 1) * (x - 1) = x ^ 2 - 1 := by ring
+  have : (x + 1) * (x - 1) = 0 := by
+    rw [this]
+    rw [h]
+    ring
+  rcases eq_zero_or_eq_zero_of_mul_eq_zero this
+  case inl g =>
+    right
+    linarith
+  case inr g =>
+    left
+    linarith
 
 example {x y : ℝ} (h : x ^ 2 = y ^ 2) : x = y ∨ x = -y := by
-  sorry
-
+  have g : (x + y) * (x - y) = x ^ 2 - y ^ 2 := by ring
+  have : x ^ 2 - y ^ 2 = 0 := by linarith [h]
+  rw [← g] at this
+  rcases eq_zero_or_eq_zero_of_mul_eq_zero this
+  case inl g =>
+    right
+    linarith
+  case inr g =>
+    left
+    linarith
 section
 variable {R : Type*} [CommRing R] [IsDomain R]
 variable (x y : R)
 
 example (h : x ^ 2 = 1) : x = 1 ∨ x = -1 := by
-  sorry
+  have : x ^ 2 - 1 = 0 := by
+    rw [h]
+    ring
+  have : (x + 1) * (x - 1) = 0 := by
+    ring
+    rw [add_comm]
+    rw [add_neg_eq_zero]
+    exact h
+  rcases eq_zero_or_eq_zero_of_mul_eq_zero this
+  case inl g =>
+    right
+    rw [add_eq_zero_iff_eq_neg] at g
+    exact g
+  case inr g =>
+    left
+    rw [sub_eq_add_neg] at g
+    rw [add_eq_zero_iff_eq_neg] at g
+    simp_all
 
 example (h : x ^ 2 = y ^ 2) : x = y ∨ x = -y := by
-  sorry
-
+  have : x ^ 2 - y ^ 2 = 0 := by
+    rw [sub_eq_add_neg]
+    rw [add_eq_zero_iff_eq_neg]
+    simp_all
+  have : (x + y) * (x - y) = 0 := by
+    ring
+    exact this
+  rcases eq_zero_or_eq_zero_of_mul_eq_zero this
+  case inl g =>
+    right
+    rw [add_eq_zero_iff_eq_neg] at g
+    exact g
+  case inr g =>
+    left
+    rw [sub_eq_add_neg] at g
+    rw [add_eq_zero_iff_eq_neg] at g
+    simp_all
 end
 
 example (P : Prop) : ¬¬P → P := by
@@ -222,4 +274,37 @@ example (P : Prop) : ¬¬P → P := by
   contradiction
 
 example (P Q : Prop) : P → Q ↔ ¬P ∨ Q := by
-  sorry
+  by_cases h₀ : P
+  · by_cases h₁ : Q
+    · constructor
+      intro h
+      right
+      exact h₁
+      intro h
+      intro g
+      exact h₁
+    · constructor
+      intro g
+      right
+      apply g
+      exact h₀
+      · intro h
+        intro g
+        apply h.resolve_left
+        simp
+        apply h₀
+  · by_cases h₁ : Q
+    · constructor
+      intro g
+      right
+      exact h₁
+      intro h
+      intro g
+      contradiction
+    · constructor
+      intro h
+      left
+      exact h₀
+      intro h
+      intro g
+      contradiction
