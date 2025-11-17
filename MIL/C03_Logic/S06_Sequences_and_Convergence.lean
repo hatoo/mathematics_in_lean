@@ -125,7 +125,32 @@ theorem aux {s t : ℕ → ℝ} {a : ℝ} (cs : ConvergesTo s a) (ct : Converges
   have Bpos : 0 < B := lt_of_le_of_lt (abs_nonneg _) (h₀ N₀ (le_refl _))
   have pos₀ : ε / B > 0 := div_pos εpos Bpos
   rcases ct _ pos₀ with ⟨N₁, h₁⟩
-  sorry
+  use max N₀ N₁
+  intro n hn
+  simp
+  have h₀ : |s n| < B := by
+    apply h₀
+    apply (max_le_iff.mp hn).left
+  simp at h₁
+  have h₁ : |t n| < ε / B := by
+    apply h₁
+    apply (max_le_iff.mp hn).right
+  calc
+    |s n * t n| = |s n| * |t n| := by
+      apply abs_mul
+    |s n| * |t n| < ε := by
+      have abssn : 0 ≤ |s n| := by
+        apply abs_nonneg
+      have abstn : 0 ≤ |t n| := by
+        apply abs_nonneg
+      convert mul_lt_mul'' h₀ h₁ abssn abstn
+      have : B ≠ 0 := by
+        apply ne_of_gt
+        apply Bpos
+      rw [mul_div, mul_comm, mul_div_assoc]
+      rw [div_self]
+      ring
+      apply this
 
 theorem convergesTo_mul {s t : ℕ → ℝ} {a b : ℝ}
       (cs : ConvergesTo s a) (ct : ConvergesTo t b) :
@@ -143,7 +168,9 @@ theorem convergesTo_unique {s : ℕ → ℝ} {a b : ℝ}
       (sa : ConvergesTo s a) (sb : ConvergesTo s b) :
     a = b := by
   by_contra abne
-  have : |a - b| > 0 := by sorry
+  have : |a - b| > 0 := by
+    apply abs_sub_pos.mpr
+    exact abne
   let ε := |a - b| / 2
   have εpos : ε > 0 := by
     change |a - b| / 2 > 0
@@ -151,11 +178,24 @@ theorem convergesTo_unique {s : ℕ → ℝ} {a b : ℝ}
   rcases sa ε εpos with ⟨Na, hNa⟩
   rcases sb ε εpos with ⟨Nb, hNb⟩
   let N := max Na Nb
-  have absa : |s N - a| < ε := by sorry
-  have absb : |s N - b| < ε := by sorry
-  have : |a - b| < |a - b| := by sorry
-  exact lt_irrefl _ this
+  have absa : |s N - a| < ε := by
+    apply hNa
+    apply le_max_left
+  have absb : |s N - b| < ε := by
+    apply hNb
+    apply le_max_right
+  have : |a - b| < |a - b| := by
+    calc
+    |a - b| = |(-(s N - a)) + (s N - b)| := by
+      congr
+      ring
+    _ ≤ |(-(s N - a))| + |s N - b| := (abs_add _ _)
+    _ = |s N - a| + |s N - b| := by rw [abs_neg]
+    _ < ε + ε := (add_lt_add absa absb)
+    _ = |a - b| := by norm_num [ε]
 
+
+  exact lt_irrefl _ this
 section
 variable {α : Type*} [LinearOrder α]
 
